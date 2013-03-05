@@ -39,9 +39,8 @@ int limi(int l){
 	int r = 0;
 	int i = r;
 
-	for(i;i<=l;i++){
-		r+=i;
-	}
+	for(i;i<=l;i++)
+		r += i;
 
 	return r;
 
@@ -50,7 +49,7 @@ int limi(int l){
 
 void subcadenas(char *palabra,int l){
 	int lim = 1; //limite de caracteres que toma
-	int lm = limi(l);
+	//int lm = limi(l);
 	int li = 1;
 	int i,x,y;
 	i = x = y = 0;
