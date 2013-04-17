@@ -6,6 +6,10 @@
 #include <fcntl.h>
 #include <X11/Xlib.h>
 
+
+#include <gtk/gtk.h>
+#include <gdk/gdk.h>
+
 #define MOUSEFILE "/dev/input/mice"
 #define TOLERANCIA 10
 
@@ -59,7 +63,81 @@ int calculaDireccion(int refX,int refY,int x,int y){
     return dir;
 }
 
-int main()
+
+void max_unmax(int max_min){
+
+    GdkScreen *sc = NULL;
+
+    sc = gdk_screen_get_default();
+
+    if(sc == NULL){
+        printf("No funciona! :(");
+        exit(1);
+    }
+
+    GdkWindow *wi,*bck;
+    
+    if(max_min)
+        gdk_window_maximize(gdk_screen_get_active_window(sc));
+    else
+        gdk_window_unmaximize(gdk_screen_get_active_window(sc));
+
+
+    gdk_window_deiconify(gdk_screen_get_active_window(sc));
+    gdk_window_show(gdk_screen_get_active_window(sc));
+    gdk_window_raise(gdk_screen_get_active_window(sc));
+
+
+}
+
+
+void allWindows(){
+        GdkScreen *sc = NULL;
+
+    sc = gdk_screen_get_default();
+
+    if(sc == NULL){
+        printf("No funciona! :(");
+        exit(1);
+    }
+
+    GdkWindow *wi,*bck;
+
+        
+    GList *windows,*g;
+    windows = gdk_screen_get_window_stack(sc);
+
+    ///*
+    g = g_list_next(windows);
+
+    wi = gdk_screen_get_active_window(sc);
+        
+    //gdk_window_iconify(wi);
+
+    printf("%d x %d \n",gdk_window_get_width(wi),gdk_window_get_height(wi));
+
+    //windows = gdk_screen_get_toplevel_windows(sc);
+    //gdk_window_iconify(g->data);
+    GdkWindow *n;
+
+    n = (GdkWindow *)g->data;
+
+    gdk_window_deiconify(n);
+    gdk_window_raise(n);
+    gdk_window_show(n); 
+
+    printf("%d x %d \n",gdk_window_get_width(n),gdk_window_get_height(n));
+
+    //gdk_window_iconify(n);
+
+    //gdk_window_scroll(g->data,400,0);
+
+    g_object_unref(g->data);
+    g_list_free(windows);
+
+}
+
+int main(int argc,char *argv[])
 {
     int fd;
     struct input_event ie;
@@ -69,12 +147,15 @@ int main()
     int rootX, rootY, winX, winY;
     unsigned int mask;
 
+
+    gtk_init(&argc,&argv);
+    gdk_init(&argc,&argv);
+
+
     dpy = XOpenDisplay(NULL);
     XGetWindowAttributes(dpy,DefaultRootWindow(dpy),&winDD);
     XQueryPointer(dpy,DefaultRootWindow(dpy),&root,&child,
     &rootX,&rootY,&winX,&winY,&mask);
-
-    printf("Dimensiones: %dx%d\n  Tolerancia: \n \t Tanchura: %.2f \n\t Taltura: %.2f\n\n",winDD.width,winDD.height,winDD.width*0.10,winDD.height*0.10);
 
     if((fd = open(MOUSEFILE, O_RDONLY)) == -1) {
         perror("opening device");
@@ -82,13 +163,15 @@ int main()
     }
 
 
-    int moves = 0;
+    int moves = 0,c = 0;
     int prevX,prevY;
     prevX = rootX;
     prevY = rootY;
+    int mm = 0;
 
     while(read(fd, &ie, sizeof(struct input_event))) {
         moves++;
+        c++;
         if (moves > 20){
 
             XQueryPointer(dpy,DefaultRootWindow(dpy),&root,&child,
@@ -99,6 +182,18 @@ int main()
             moves = 0;
             prevX = rootX;
             prevY = rootY;
+        }
+
+        if(c > 200){
+            mm++;
+            //max_unmax(mm);
+
+            //allWindows();
+
+            if(mm>1)
+                mm = -1;
+
+            c = 0;
         }
     }
 
