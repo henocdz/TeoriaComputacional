@@ -18,6 +18,7 @@ struct dirs{
     int dir1[2],dir3[2],dir5[2],dir7[2];
 };
 
+
 int calculaDireccion(int refX,int refY,int x,int y){
     int dir = 0;
     struct dirs d;
@@ -65,7 +66,7 @@ int calculaDireccion(int refX,int refY,int x,int y){
 
 
 void max_unmax(int max_min){
-
+    //Maximizar minimizar
     GdkScreen *sc = NULL;
 
     sc = gdk_screen_get_default();
@@ -89,6 +90,9 @@ void max_unmax(int max_min){
 
 
 }
+
+
+//gcc `pkg-config --cflags glib-2.0 gtk+-3.0` main.c  `pkg-config --libs glib-2.0 gtk+-3.0`
 
 
 void allWindows(){
@@ -139,6 +143,10 @@ void allWindows(){
 
 int main(int argc,char *argv[])
 {
+
+    printf("\n\n // \t EL PROGRAMA SOLO MAXIMIZA Y MINIMIZA LA VENTANA ACTIVA \n");
+    printf(" // \t SE DEBE CORRER COMO SUPERUSUARIO \n\n\n");
+    
     int fd;
     struct input_event ie;
     Display *dpy;
@@ -168,11 +176,11 @@ int main(int argc,char *argv[])
     prevX = rootX;
     prevY = rootY;
     int mm = 0;
-
+    int max_min = 0;
     while(read(fd, &ie, sizeof(struct input_event))) {
         moves++;
         c++;
-        if (moves > 20){
+        if (moves > 160){
 
             XQueryPointer(dpy,DefaultRootWindow(dpy),&root,&child,
             &rootX,&rootY,&winX,&winY,&mask);
@@ -182,6 +190,13 @@ int main(int argc,char *argv[])
             moves = 0;
             prevX = rootX;
             prevY = rootY;
+
+           if(max_min)
+            max_min  = 0;
+            else 
+                max_min = 1;
+
+            max_unmax(max_min);
         }
 
         if(c > 200){
